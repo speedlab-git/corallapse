@@ -111,6 +111,10 @@ figcaption b{color:var(--ink-2)}
 .pipe h4{font-size:15.5px;font-weight:700;margin:10px 0 6px;color:var(--ink)}
 .pipe p{font-size:14px;color:var(--ink-2);line-height:1.55}
 .pipe .obj{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:8px;display:block}
+.demo{margin-top:72px;padding-top:56px;border-top:1px solid var(--line)}
+.steps4d{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.steps4d span{font-size:13px;color:var(--ink-2);padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(11,36,51,.5)}
+.steps4d b{color:var(--cyan);font-family:var(--mono);margin-right:6px;font-weight:500}
 @media (max-width:900px){.pipe{grid-template-columns:1fr 1fr;row-gap:22px}}
 @media (max-width:520px){.pipe{grid-template-columns:1fr}}
 
@@ -326,6 +330,19 @@ footer b{color:var(--ink-2)}
       <div class="rv"><h4>Build the 4D model</h4><p>Water-aware Gaussian surfaces in a common frame, warm-started from the last visit.</p><span class="obj">→ Objective 1</span></div>
       <div class="rv"><h4>Track &amp; render</h4><p>Follow surface points across visits; render novel views for expert inspection.</p><span class="obj">→ Objective 3</span></div>
       <div class="rv"><h4>Quantify &amp; report</h4><p>Area, volume, branch-count change with error ranges, and a verified report.</p><span class="obj">→ Objective 3</span></div>
+    </div>
+
+    <div class="demo rv">
+      <p class="subhead">The pipeline in motion</p>
+      <h3 style="font-size:26px;margin-bottom:6px">4D reef reconstruction from a survey clip</h3>
+      <p class="lede" style="margin-top:0;margin-bottom:22px">A short reef survey clip goes through per-frame depth estimation, is lifted to 3D, and is aligned into one 4D reconstruction in a single world frame, where change on a tracked colony can be followed over time.</p>
+      <div class="video-shell" style="margin-top:0">
+        <video id="demo4d" src="assets/reef_4d_reconstruction.mp4" poster="assets/reef4d-poster.jpg" muted loop playsinline preload="metadata" controls></video>
+      </div>
+      <div class="steps4d">
+        <span><b>1</b> Input survey clip</span><span><b>2</b> Per-frame depth</span><span><b>3</b> Lifted to 3D</span><span><b>4</b> 4D: one model per frame</span><span><b>5</b> Change over time</span>
+      </div>
+      <div class="video-cap"><span>The change-over-time segment shows simulated bleaching on one tracked colony for illustration; it is not a measured result.</span><span class="mono">31 s · 1280×720</span></div>
     </div>
   </div>
 </section>
@@ -610,6 +627,12 @@ footer b{color:var(--ink-2)}
   var v=document.getElementById('teaser'),b=document.getElementById('sound');
   b.addEventListener('click',function(){v.muted=!v.muted;if(!v.muted)v.play();b.textContent=v.muted?'🔇 Unmute':'🔊 Mute';});
   v.addEventListener('volumechange',function(){b.textContent=v.muted?'🔇 Unmute':'🔊 Mute';});
+
+  // play the 4D demo only while it is on screen
+  var d=document.getElementById('demo4d');
+  if(d&&'IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var p=d.play();if(p&&p.catch)p.catch(function(){});}else d.pause();})},{threshold:.35}).observe(d);
+  }
 
   // lightbox
   var lb=document.getElementById('lb'),li=lb.querySelector('img');

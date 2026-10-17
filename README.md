@@ -25,6 +25,8 @@ Lead PI: Ahmed Imteaj, Ph.D. (EECS, SPEED Lab).
 index.html              single-page site (no build step)
 assets/coralReef_SPEED_Lab.mp4  teaser video (28 MB, H.264)
 assets/video-poster.jpg poster frame for the video
+assets/reef_4d_reconstruction.mp4  4D reconstruction demo (11 MB)
+assets/reef4d-poster.jpg  poster for the demo
 assets/fig1-overview.jpg Figure 1 – concept overview
 assets/fig2-timeline.png Figure 2 – 2027 work plan
 assets/social-card.jpg  link-preview image
