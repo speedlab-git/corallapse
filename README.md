@@ -31,5 +31,3 @@ assets/fig1-overview.jpg Figure 1 – concept overview
 assets/fig2-timeline.png Figure 2 – 2027 work plan
 assets/social-card.jpg  link-preview image
 ```
-
-Figures and the teaser are concept renderings, not experimental results.
