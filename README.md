@@ -27,7 +27,11 @@ assets/coralReef_SPEED_Lab.mp4  teaser video (28 MB, H.264)
 assets/video-poster.jpg poster frame for the video
 assets/reef_4d_reconstruction.mp4  4D reconstruction demo (11 MB)
 assets/reef4d-poster.jpg  poster for the demo
-assets/fig1-overview.jpg Figure 1 – concept overview
+assets/preliminary_results.mp4  preliminary results video (10 MB)
+assets/prelim-poster.jpg  poster for the preliminary results video
+assets/fig1-pipeline.jpg Figure 1 – 4D pipeline overview
 assets/fig2-timeline.png Figure 2 – 2027 work plan
 assets/social-card.jpg  link-preview image
 ```
+
+Figures and the teaser are concept renderings, not experimental results.

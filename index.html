@@ -233,6 +233,7 @@ footer b{color:var(--ink-2)}
     <ul>
       <li><a href="#problem">Problem</a></li>
       <li><a href="#approach">Approach</a></li>
+      <li><a href="#results">Results</a></li>
       <li><a href="#objectives">Objectives</a></li>
       <li><a href="#evaluation">Evaluation</a></li>
       <li><a href="#plan">Work plan</a></li>
@@ -321,8 +322,8 @@ footer b{color:var(--ink-2)}
       </div>
     </div>
     <figure class="rv">
-      <div class="fig"><img src="assets/fig1-overview.jpg" alt="CoralLapse concept overview: five stages from underwater video to change quantification and a monitoring report" loading="lazy" data-zoom></div>
-      <figcaption><b>Figure 1. CoralLapse concept overview.</b> Images, the results row, and the example report are illustrative concept renderings, not experimental results. In the proposed system every number in the report is verified against the measurements, and health statements are made only when supported. <span class="mono" style="font-size:12px">(click to enlarge)</span></figcaption>
+      <div class="fig" style="background:#fff;padding:10px"><img src="assets/fig1-overview-v2.png" alt="CoralLapse overview: (a) video and keyframes, (b) SAM segmentation and genus/growth-form classification, (c) 4D reconstruction, (d) tracking and new views, (e) change analysis, (f) change metrics, (g) VLM monitoring report" loading="lazy" data-zoom></div>
+      <figcaption><b>Figure 1. CoralLapse overview.</b> (a) Keyframes chosen from long-term survey video; (b) SAM masks per colony, classified by genus and growth form; (c) per-frame depth fused into a time-indexed point cloud and textured mesh; (d) points tracked across surveys and rendered from new viewpoints; (e) per-point geometric change between surveys; (f) change metrics; (g) VLM monitoring report. Panels a–d are computed from survey footage; class labels and confidences, and panels e–g, are illustrative. <span class="mono" style="font-size:12px">(click to enlarge)</span></figcaption>
     </figure>
     <div class="pipe">
       <div class="rv"><h4>Select frames</h4><p>Keep sharp, clear frames that add new viewpoints; drop near-duplicates.</p><span class="obj">→ Objective 1</span></div>
@@ -343,6 +344,27 @@ footer b{color:var(--ink-2)}
         <span><b>1</b> Input survey clip</span><span><b>2</b> Per-frame depth</span><span><b>3</b> Lifted to 3D</span><span><b>4</b> 4D: one model per frame</span><span><b>5</b> Change over time</span>
       </div>
       <div class="video-cap"><span>The change-over-time segment shows simulated bleaching on one tracked colony for illustration; it is not a measured result.</span><span class="mono">31 s · 1280×720</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="dark" id="results" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">Preliminary results</div>
+      <div>
+        <h2>Early outputs on real underwater video.</h2>
+        <p class="lede">Before the seed period begins, the core pieces already run end to end on real footage: coral colonies are segmented along a reef transect, objects are matched between two survey visits, monocular video is lifted into a 4D point cloud, and a SAM&nbsp;2 mask isolates a single organism in 4D.</p>
+      </div>
+    </div>
+    <div class="rv">
+      <div class="video-shell" style="margin-top:0">
+        <video id="prelim" src="assets/preliminary_results.mp4" poster="assets/prelim-poster.jpg" muted loop playsinline preload="metadata" controls></video>
+      </div>
+      <div class="steps4d">
+        <span><b>1</b> Transect video</span><span><b>2</b> Colony segmentation</span><span><b>3</b> Change V1 → V2</span><span><b>4</b> Coral → 4D point cloud</span><span><b>5</b> SAM&nbsp;2 object → 4D</span>
+      </div>
+      <div class="video-cap"><span>Preliminary outputs from the SPEED Lab pipeline; not yet validated against diver measurements or photogrammetry.</span><span class="mono">57 s · 1280×720</span></div>
     </div>
   </div>
 </section>
@@ -629,10 +651,12 @@ footer b{color:var(--ink-2)}
   v.addEventListener('volumechange',function(){b.textContent=v.muted?'🔇 Unmute':'🔊 Mute';});
 
   // play the 4D demo only while it is on screen
-  var d=document.getElementById('demo4d');
-  if(d&&'IntersectionObserver' in window){
-    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var p=d.play();if(p&&p.catch)p.catch(function(){});}else d.pause();})},{threshold:.35}).observe(d);
-  }
+  ['demo4d','prelim'].forEach(function(id){
+    var d=document.getElementById(id);
+    if(d&&'IntersectionObserver' in window){
+      new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var p=d.play();if(p&&p.catch)p.catch(function(){});}else d.pause();})},{threshold:.35}).observe(d);
+    }
+  });
 
   // lightbox
   var lb=document.getElementById('lb'),li=lb.querySelector('img');
