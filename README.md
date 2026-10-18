@@ -32,6 +32,8 @@ assets/prelim-poster.jpg  poster for the preliminary results video
 assets/fig1-pipeline.jpg Figure 1 – 4D pipeline overview
 assets/fig2-timeline.png Figure 2 – 2027 work plan
 assets/social-card.jpg  link-preview image
+assets/demo-preview.jpg  preview image for the demo section
+demo/                   interactive app prototype (index.html, style.css, app.js, assets/)
 ```
 
 Figures and the teaser are concept renderings, not experimental results.

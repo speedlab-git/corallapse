@@ -234,6 +234,7 @@ footer b{color:var(--ink-2)}
       <li><a href="#problem">Problem</a></li>
       <li><a href="#approach">Approach</a></li>
       <li><a href="#results">Results</a></li>
+      <li><a href="#demo">Demo</a></li>
       <li><a href="#objectives">Objectives</a></li>
       <li><a href="#evaluation">Evaluation</a></li>
       <li><a href="#plan">Work plan</a></li>
@@ -260,6 +261,7 @@ footer b{color:var(--ink-2)}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
         See the method
       </a>
+      <a class="btn ghost" href="demo/">Try the interactive demo</a>
       <a class="btn ghost" href="#evaluation">CoralLapse-Bench</a>
       <a class="btn ghost" href="#cite">Cite</a>
     </div>
@@ -365,6 +367,30 @@ footer b{color:var(--ink-2)}
         <span><b>1</b> Transect video</span><span><b>2</b> Colony segmentation</span><span><b>3</b> Change V1 → V2</span><span><b>4</b> Coral → 4D point cloud</span><span><b>5</b> SAM&nbsp;2 object → 4D</span>
       </div>
       <div class="video-cap"><span>Preliminary outputs from the SPEED Lab pipeline; not yet validated against diver measurements or photogrammetry.</span><span class="mono">57 s · 1280×720</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="dark" id="demo" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="num">Interactive demo</div>
+      <div>
+        <h2>Click through the CoralLapse app.</h2>
+        <p class="lede">A working prototype of the planned web tool: add surveys, segment and classify with SAM&nbsp;2, reconstruct in 4D, turn the camera for novel views, analyse change, and read a verified VLM report. It runs on our preliminary results: the sample reef clip, the Pulley Ridge expert-labelled photos, and NOAA NCRMP plot T3 at East Flower Garden Banks (2019 and 2022).</p>
+      </div>
+    </div>
+    <div class="rv">
+      <a href="demo/" aria-label="Open the interactive demo" style="display:block;border:1px solid var(--line);border-radius:14px;overflow:hidden">
+        <img src="assets/demo-preview.jpg" alt="CoralLapse demo, change-analysis step comparing the 2019 and 2022 surveys of plot T3" loading="lazy" style="display:block;width:100%;height:auto">
+      </a>
+      <div class="btns">
+        <a class="btn" href="demo/">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+          Open the demo
+        </a>
+      </div>
+      <div class="video-cap"><span>Prototype interface; upload and processing are not yet connected to a backend. The change map in step 5 is a simulated example.</span><span class="mono">6 steps · static site</span></div>
     </div>
   </div>
 </section>

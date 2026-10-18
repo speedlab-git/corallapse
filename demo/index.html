@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoralLapse Demo</title>
+<meta name="description" content="Interactive prototype of the CoralLapse pipeline: SAM segmentation, 4D reconstruction, novel views, change analysis and verified VLM reports.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+<div class="top-in">
+<a class="brand" href="../">
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><circle cx="15" cy="15" r="13" stroke="#5FC4CF" stroke-width="1.6"/><path d="M15 24V13M15 17l-5-5M15 15l5-6M10 12V8M20 9V6" stroke="#5FC4CF" stroke-width="1.6" stroke-linecap="round"/></svg>
+<b>CoralLapse</b></a>
+<span class="tag">prototype</span>
+<span class="proj"><span style="color:#8EA3A9">Project</span> <strong>East Flower Garden Banks · Plot T3</strong></span>
+<span class="spacer"></span>
+<span class="org">SPEED Lab · I-SMART · Harbor Branch, Florida Atlantic University</span>
+</div>
+</header>
+
+<div class="wrap">
+<nav class="steps" aria-label="Pipeline steps">
+<div class="eyebrow">Pipeline</div>
+<div id="stepnav"></div>
+<div class="datainfo"><b>Data in this project</b>
+<div>Track A · NOAA NCRMP fixed plot, 2019 and 2022</div>
+<div>Track B · Pulley Ridge ROV, 600 expert points</div>
+<div>Demo · 23-frame sample reef clip</div></div>
+</nav>
+
+<main>
+
+<!-- 1 · Upload -->
+<section class="pane" data-step="0" aria-labelledby="h0">
+<div><div class="eyebrow">Step 1 of 6</div><h1 id="h0">Add surveys</h1>
+<p class="lede">Upload repeat survey video or overlapping images of the same plot, plus any expert point labels. Surveys of one plot are combined into a single 4D model.</p></div>
+<div class="row">
+<div class="col3">
+<label class="drop" id="drop">
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M18 24V8M11 14l7-7 7 7" stroke="#0B6E79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 24v4a2 2 0 002 2h20a2 2 0 002-2v-4" stroke="#0B6E79" stroke-width="2" stroke-linecap="round"/></svg>
+<b id="dropmsg">Drop files here or browse</b>
+<span class="muted small">Video (MP4, MOV) · image sets (JPG, TIFF) · CPCe point files (.cpc) · camera calibration</span>
+<input id="up" type="file" multiple aria-label="Choose survey files">
+</label>
+<div class="card" style="padding:0">
+<div style="padding:14px 18px;border-bottom:1px solid #E2E7E9;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Surveys and labels</b><span class="muted small">4 items</span></div>
+<div class="tbl"><table style="min-width:560px">
+<thead><tr><th scope="col" style="padding-left:18px">Name</th><th scope="col">Type</th><th scope="col">Role</th><th scope="col">Status</th></tr></thead>
+<tbody>
+<tr><td class="item" style="padding-left:18px"><img src="assets/fgb19.jpg" alt=""><span><b>NCRMP survey · Oct 2019</b><span class="muted small">27.9076 N, 93.5993 W · 19.5 m</span></span></td><td>Orthomosaic</td><td>Survey 1</td><td class="ok">Ready</td></tr>
+<tr><td class="item" style="padding-left:18px"><img src="assets/fgb22.jpg" alt=""><span><b>NCRMP survey · Oct 2022</b><span class="muted small">Same fixed plot, 10 m × 10 m</span></span></td><td>Orthomosaic</td><td>Survey 2</td><td class="ok">Ready</td></tr>
+<tr><td class="item" style="padding-left:18px"><img src="assets/pr_points.jpg" alt=""><span><b>Pulley Ridge ROV, 2013–2014</b><span class="muted small">12 photos · 600 CPCe points</span></span></td><td>Images + labels</td><td>Training labels</td><td class="ok">Ready</td></tr>
+<tr><td class="item" style="padding-left:18px"><img src="assets/key_rgb.jpg" alt=""><span><b>Sample reef clip</b><span class="muted small">23 frames</span></span></td><td>Video</td><td>4D demo</td><td class="ok">Ready</td></tr>
+</tbody></table></div>
+</div>
+</div>
+<div class="col2"><div class="card stack">
+<h2>Pipeline settings</h2>
+<label class="field">Plot name<input type="text" value="East FGB · Plot T3"></label>
+<label class="field">3D method<select><option>2D Gaussian splatting (surface)</option><option>Photogrammetry mesh</option><option>Fast preview (monocular depth)</option></select></label>
+<label class="check"><input type="checkbox" checked><span><b>Keyframe selection</b><span>Keep sharp frames that add new viewpoints</span></span></label>
+<label class="check"><input type="checkbox" checked><span><b>Water-aware colour model</b><span>Separates haze and light from real change</span></span></label>
+<label class="check"><input type="checkbox" checked><span><b>SAM 2 from expert points</b><span>Each CPCe point becomes a mask prompt</span></span></label>
+<label class="check"><input type="checkbox" checked><span><b>Verified VLM report</b><span>Every number checked against measurements</span></span></label>
+<button class="btn full" type="button" data-next>Run pipeline</button>
+</div></div>
+</div>
+</section>
+
+<!-- 2 · Segment -->
+<section class="pane" data-step="1" aria-labelledby="h1" hidden>
+<div class="head"><div><div class="eyebrow">Step 2 of 6</div><h1 id="h1">Segment and classify</h1>
+<p class="lede">SAM 2 outlines each colony and patch of seafloor. Click to add or remove a region; the classifier learns from expert points.</p></div>
+<div class="chips" role="group" aria-label="Dataset" data-group="segData">
+<button class="chip pill" type="button" data-v="clip" aria-pressed="true">Sample reef clip</button>
+<button class="chip pill" type="button" data-v="pulley" aria-pressed="false">Pulley Ridge (expert labels)</button>
+</div></div>
+
+<div class="row" data-show="segData:clip">
+<div class="col3">
+<div class="head" style="align-items:center">
+<div class="chips" role="group" aria-label="Layer" data-group="segView">
+<button class="chip" type="button" data-v="masks" aria-pressed="true">Masks</button>
+<button class="chip" type="button" data-v="rgb" aria-pressed="false">Image</button>
+<button class="chip" type="button" data-v="depth" aria-pressed="false">Depth</button>
+</div>
+<div class="chips" role="group" aria-label="Prompt tool" data-group="tool">
+<button class="chip tool" type="button" data-v="add" aria-pressed="true">+ Add point</button>
+<button class="chip tool" type="button" data-v="remove" aria-pressed="false">− Remove</button>
+<button class="chip tool" type="button" data-v="box" aria-pressed="false">Box</button>
+</div></div>
+<figure class="viewer"><img id="segImg" src="assets/key_masks.jpg" alt="SAM masks for six colonies over the keyframe"><figcaption id="segCap">keyframe 14 / 23 · masks</figcaption></figure>
+</div>
+<div class="col2"><div class="card stack">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><h2>Colonies found</h2><span class="mono muted small">6</span></div>
+<div class="list">
+<div><span class="sw" style="background:#4682C8"></span><span class="grow">Colony 1 · tabular</span><span class="mono muted small">17,079 px</span></div>
+<div><span class="sw" style="background:#E6AA28"></span><span class="grow">Colony 2 · branching</span><span class="mono muted small">13,691 px</span></div>
+<div><span class="sw" style="background:#C85A3C"></span><span class="grow">Colony 3 · branching</span><span class="mono muted small">12,155 px</span></div>
+<div><span class="sw" style="background:#8C6EC8"></span><span class="grow">Colony 4 · plate</span><span class="mono muted small">9,578 px</span></div>
+<div><span class="sw" style="background:#3CAA6E"></span><span class="grow">Colony 5 · massive</span><span class="mono muted small">9,022 px</span></div>
+<div><span class="sw" style="background:#D2508C"></span><span class="grow">Colony 6 · massive</span><span class="mono muted small">8,106 px</span></div>
+</div>
+<p class="muted small" style="margin:0">Growth-form names on the sample clip are placeholders until the classifier is trained on expert labels.</p>
+<button class="btn full" type="button" data-next>Continue to 4D reconstruction</button>
+</div></div>
+</div>
+
+<div class="row" data-show="segData:pulley" hidden>
+<div class="col3">
+<div class="chips" role="group" aria-label="Pulley Ridge layer" data-group="prView">
+<button class="chip" type="button" data-v="points" aria-pressed="true">Expert points</button>
+<button class="chip" type="button" data-v="dense" aria-pressed="false">Dense map</button>
+</div>
+<figure class="viewer"><img id="prImg" src="assets/pr_points.jpg" alt="Pulley Ridge ROV photo with 50 expert CPCe points"><figcaption>Pulley Ridge · ROV 13-11 · 50 expert points</figcaption></figure>
+<div class="legend">
+<span><i style="background:#9A9A9A"></i>Rubble</span><span><i style="background:#EAD898"></i>Sand</span><span><i style="background:#DC5C9A"></i>Crustose coralline algae</span><span><i style="background:#3EBE4E"></i>Halimeda</span><span><i style="background:#8A2638"></i>Macroalgae</span><span><i style="background:#EE9420"></i>Sponge</span><span><i style="background:#3C78E6"></i>Coral</span>
+</div>
+</div>
+<div class="col2"><div class="card stack">
+<h2>Baseline accuracy, held-out images</h2>
+<div class="stats">
+<div class="stat"><div class="v">0.62</div><div class="k">accuracy</div></div>
+<div class="stat"><div class="v">0.55</div><div class="k">always “rubble”</div></div>
+<div class="stat warn"><div class="v">0.27</div><div class="k">macro-F1</div></div>
+</div>
+<div class="bars" role="img" aria-label="Per-class F1: rubble 0.74, sand 0.51, crustose coralline algae 0.51, macroalgae 0.18, sponge 0.15, Halimeda 0.05, coral 0.00">
+<div class="bar"><span>Rubble</span><span class="tr"><i style="width:74%"></i></span><span class="num">0.74</span></div>
+<div class="bar"><span>Sand</span><span class="tr"><i style="width:51%"></i></span><span class="num">0.51</span></div>
+<div class="bar"><span>CCA</span><span class="tr"><i style="width:51%"></i></span><span class="num">0.51</span></div>
+<div class="bar"><span>Macroalgae</span><span class="tr"><i class="low" style="width:18%"></i></span><span class="num">0.18</span></div>
+<div class="bar"><span>Sponge</span><span class="tr"><i class="low" style="width:15%"></i></span><span class="num">0.15</span></div>
+<div class="bar"><span>Halimeda</span><span class="tr"><i class="low" style="width:5%"></i></span><span class="num">0.05</span></div>
+<div class="bar"><span>Coral</span><span class="tr"></span><span class="num">0.00</span></div>
+</div>
+<p class="muted small" style="margin:0">Superpixels + random forest, leave-one-image-out, 12 images, 600 points. Rare classes are missed; point-prompted SAM 2 with VLM checks is the fix this project builds.</p>
+<button class="btn full" type="button" data-next>Continue to 4D reconstruction</button>
+</div></div>
+</div>
+</section>
+
+<!-- 3 · Reconstruct -->
+<section class="pane" data-step="2" aria-labelledby="h2" hidden>
+<div><div class="eyebrow">Step 3 of 6</div><h1 id="h2">Reconstruct in 4D</h1>
+<p class="lede">Frames become one time-indexed 3D model. Stages marked “seed project” are what the full system adds.</p></div>
+<div class="progress" aria-hidden="true"><i id="prog"></i></div>
+<div class="row">
+<div class="col2" style="flex:2 1 360px"><div class="card" style="padding:4px 18px">
+<ol class="stages" id="stages">
+<li data-done><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="#0B6E79"/><path d="M6.5 11.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Keyframes</b><span class="muted small">23 of 23 frames kept · on-screen graphics removed by inpainting</span></div></li>
+<li data-done><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="#0B6E79"/><path d="M6.5 11.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Per-frame depth</b><span class="muted small">Depth Anything V2 · about 1.9 s per frame on a 2-core CPU</span></div></li>
+<li data-done><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="#0B6E79"/><path d="M6.5 11.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Alignment to one frame</b><span class="muted small">Median depth drift 1.7% of depth range (max 5.7%)</span></div></li>
+<li data-done><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="#0B6E79"/><path d="M6.5 11.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Lift to 3D</b><span class="muted small">232,917 coloured points from the keyframe</span></div></li>
+<li data-done><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="#0B6E79"/><path d="M6.5 11.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Point tracking</b><span class="muted small">26 points tracked on one colony through all 23 frames</span></div></li>
+<li><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="none" stroke="#8A9AA1" stroke-width="2" stroke-dasharray="3 3"/></svg><div><b>Multi-view poses and scale</b><span class="muted small">COLMAP / GLOMAP with scale bars · seed project</span></div></li>
+<li><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="none" stroke="#8A9AA1" stroke-width="2" stroke-dasharray="3 3"/></svg><div><b>2D Gaussian splatting + water model</b><span class="muted small">Updated per survey, not rebuilt · seed project</span></div></li>
+<li><svg class="dot" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="none" stroke="#8A9AA1" stroke-width="2" stroke-dasharray="3 3"/></svg><div><b>Joint alignment across surveys</b><span class="muted small">2019 and 2022 in one frame · seed project</span></div></li>
+</ol></div></div>
+<div class="col3">
+<figure class="viewer"><img src="assets/fourd.jpg" alt="Time-indexed reconstruction of the sample reef, all 23 frames aligned in one world frame"><figcaption class="tr">4D model · 23 frames · one world frame</figcaption></figure>
+<pre class="log" aria-label="Job log">[keyframes] 23/23 kept · overlays inpainted
+[depth]     DepthAnythingV2-B · 1.9 s/frame
+[align]     drift median 1.7%  max 5.7%
+[lift]      232,917 points written
+[track]     26/26 points survive 23 frames
+[next]      multi-view + 2DGS needs GPU worker</pre>
+<button class="btn" type="button" data-next>Open 4D viewer</button>
+</div>
+</div>
+</section>
+
+<!-- 4 · Explore -->
+<section class="pane" data-step="3" aria-labelledby="h3" hidden>
+<div class="head"><div><div class="eyebrow">Step 4 of 6</div><h1 id="h3">Explore and novel views</h1>
+<p class="lede">Turn the camera to see the reef from angles the diver never filmed, or open one colony in 3D.</p></div>
+<div class="chips" role="group" aria-label="View" data-group="ex">
+<button class="chip pill" type="button" data-v="scene" aria-pressed="true">Reef novel views</button>
+<button class="chip pill" type="button" data-v="colony" aria-pressed="false">Colony in 3D</button>
+<button class="chip pill" type="button" data-v="tracks" aria-pressed="false">Point tracks</button>
+</div></div>
+<div class="row">
+<div class="col3" style="flex:3 1 520px">
+<figure class="viewer" id="exFig"><img id="exImg" src="assets/nv_a.jpg" alt="Novel view of the reconstructed reef"><figcaption class="tr" id="exCap">novel view · yaw +1.8° pitch 0.6°</figcaption></figure>
+<div class="card slider" id="angleBox">
+<label for="yaw"><b>Camera angle</b></label>
+<input id="yaw" type="range" min="0" max="2" step="1" value="0">
+<span class="mono" id="exAngle">yaw +1.8° pitch 0.6°</span>
+</div>
+</div>
+<div class="col2">
+<div class="card stack">
+<h2>Layers</h2>
+<label class="check"><input type="checkbox" checked><span>True colour (water removed)</span></label>
+<label class="check"><input type="checkbox"><span>Benthic classes</span></label>
+<label class="check"><input type="checkbox"><span>Growth / loss heat map</span></label>
+<label class="check"><input type="checkbox"><span>Camera positions</span></label>
+</div>
+<div class="card stack">
+<label class="field" style="color:var(--ink);font-weight:600;font-size:17px">Survey<select style="font-weight:400"><option>Sample clip (demo)</option><option>NCRMP Oct 2019 (needs raw images)</option><option>NCRMP Oct 2022 (needs raw images)</option></select></label>
+<div class="stats"><div class="stat"><div class="v" style="font-size:18px">232,917</div><div class="k">points</div></div><div class="stat"><div class="v" style="font-size:18px">1.7%</div><div class="k">median drift</div></div></div>
+</div>
+<button class="btn full" type="button" data-next>Analyze change</button>
+</div>
+</div>
+</section>
+
+<!-- 5 · Change -->
+<section class="pane" data-step="4" aria-labelledby="h4" hidden>
+<div><div class="eyebrow">Step 5 of 6</div><h1 id="h4">Analyze change</h1>
+<p class="lede">Change is only reported once surveys share one frame and differences exceed the noise floor: per surface point, per benthic class, and per colony.</p></div>
+<div class="card stack">
+<div class="head" style="align-items:center"><div><h2>Plot T3, East Flower Garden Banks · 2019 vs 2022</h2><div class="muted small">Published NOAA mosaics, same coordinates, three years apart</div></div>
+<div class="chips" role="group" aria-label="2019 colour" data-group="fgb">
+<button class="chip" type="button" data-v="pub" aria-pressed="true">2019 as published</button>
+<button class="chip" type="button" data-v="cc" aria-pressed="false">2019 colour-matched</button>
+</div></div>
+<div class="pair">
+<figure><img id="fgbImg" src="assets/fgb19.jpg" alt="Plot T3 mosaic, October 2019, as published"><figcaption id="fgbCap">Survey 1 · Oct 2019 · as published</figcaption></figure>
+<figure><img src="assets/fgb22.jpg" alt="Plot T3 mosaic, October 2022"><figcaption>Survey 2 · Oct 2022 · as published</figcaption></figure>
+<div class="stats" style="grid-template-columns:1fr">
+<div class="stat"><div class="v">ΔE 31.3</div><div class="k">mean colour difference (CIEDE2000)</div></div>
+<div class="stat"><div class="v">99° → 71°</div><div class="k">mean hue angle, 2019 → 2022</div></div>
+<div class="stat warn"><div class="v">4–7 / ~900</div><div class="k">consistent SIFT matches: standard alignment fails</div></div>
+<div class="stat"><div class="v">48% · 98%</div><div class="k">mosaic area with data, 2019 · 2022</div></div>
+</div></div>
+<div class="note"><b>What happens next:</b> CoralLapse aligns the raw 2019 and 2022 images jointly, so per-point, per-class and per-colony change can be measured. Colour matching alone removes the mean colour shift but does not restore alignment.</div>
+</div>
+<div class="grid">
+<div class="card stack"><div class="lvl">LEVEL 1 · SURFACE</div><h2>Growth / loss per point</h2>
+<img src="assets/change_map.jpg" alt="Example change map on one colony: blue growth, red loss" style="display:block;width:100%;height:160px;object-fit:contain;background:#F7F9F9;border-radius:8px">
+<p class="muted small" style="margin:0">Signed distance between surveys along the surface normal (M3C2); changes below the noise floor are greyed out. Shown: simulated example on the demo colony.</p></div>
+<div class="card stack"><div class="lvl">LEVEL 2 · CLASS</div><h2>What replaced what</h2>
+<div class="tbl"><table style="font-size:13px;min-width:230px">
+<thead><tr><th scope="col">2019 ↓ / 2022 →</th><th scope="col">Coral</th><th scope="col">CCA</th><th scope="col">Turf/algae</th><th scope="col">Sand</th></tr></thead>
+<tbody>
+<tr><th scope="row" style="color:var(--ink)">Coral</th><td class="muted">—</td><td class="muted">—</td><td class="bad">mortality</td><td class="muted">—</td></tr>
+<tr><th scope="row" style="color:var(--ink)">CCA</th><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="bad">burial</td></tr>
+</tbody></table></div>
+<p class="muted small" style="margin:0">Cells fill with percentage points once the two surveys are aligned. Labels come from the Pulley Ridge-trained classifier.</p></div>
+<div class="card stack"><div class="lvl">LEVEL 3 · COLONY</div><h2>Vital rates per tracked colony</h2>
+<div class="kv">
+<div><span>Planar area</span><span class="muted">awaiting aligned surveys</span></div>
+<div><span>3D surface area</span><span class="muted">awaiting aligned surveys</span></div>
+<div><span>Volume above base</span><span class="muted">awaiting aligned surveys</span></div>
+<div><span>Status</span><span class="muted">growth · partial · death · recruit</span></div>
+</div>
+<p class="muted small" style="margin:0">Checked against NOAA’s manual colony annotations of the same plot.</p></div>
+</div>
+<button class="btn" type="button" data-next>Generate verified report</button>
+</section>
+
+<!-- 6 · Report -->
+<section class="pane" data-step="5" aria-labelledby="h5" hidden>
+<div class="head"><div><div class="eyebrow">Step 6 of 6</div><h1 id="h5">Verified monitoring report</h1>
+<p class="lede">Written by a vision-language model from the measurement table only. Each claim is checked; unsupported claims become “cannot assess.”</p></div>
+<div class="chips"><button class="btn ghost" type="button" id="csv">Download table (CSV)</button><button class="btn" type="button" id="pdf" style="min-height:44px">Print / save PDF</button></div></div>
+<article class="report">
+<header><div><div style="font-size:22px;font-weight:600">East Flower Garden Banks · Plot T3</div><div class="muted small">Surveys: Oct 2019, Oct 2022 · classifier trained on Pulley Ridge expert labels</div></div>
+<div class="chips" style="align-items:flex-start"><span class="badge">5 claims verified</span><span class="badge bad">2 cannot assess</span></div></header>
+<section aria-label="Summary"><b>Summary</b>
+<p style="margin:4px 0 0;max-width:820px">The 2019 and 2022 mosaics of plot T3 differ strongly in colour (ΔE 31.3; mean hue 99° vs 71°), consistent with different water and light conditions. Standard matching found only 4–7 consistent correspondences, so colony-level change <strong>cannot be assessed</strong> from the published mosaics; joint alignment of the raw images is required. Benthic labels are available from the Pulley Ridge training set.</p></section>
+<div class="tbl"><table id="claims" style="min-width:620px">
+<thead><tr><th scope="col">Claim</th><th scope="col">Value</th><th scope="col">Source in measurement table</th><th scope="col">Check</th></tr></thead>
+<tbody>
+<tr><td>Colour difference between surveys</td><td class="mono">ΔE 31.3</td><td class="muted">appearance.deltaE2000</td><td class="ok">Verified</td></tr>
+<tr><td>Mean hue shift</td><td class="mono">99° → 71°</td><td class="muted">appearance.hue_mean</td><td class="ok">Verified</td></tr>
+<tr><td>Standard alignment</td><td class="mono">4–7 of ~900</td><td class="muted">registration.sift_inliers</td><td class="ok">Verified</td></tr>
+<tr><td>Rubble share of expert points (Pulley Ridge)</td><td class="mono">55.3%</td><td class="muted">labels.cpce.rubble (332 / 600)</td><td class="ok">Verified</td></tr>
+<tr><td>CCA share of expert points (Pulley Ridge)</td><td class="mono">13.0%</td><td class="muted">labels.cpce.cca (78 / 600)</td><td class="ok">Verified</td></tr>
+<tr><td>Colony growth on plot T3</td><td class="mono">—</td><td class="muted">no aligned surveys</td><td class="bad">Cannot assess</td></tr>
+<tr><td>Bleaching</td><td class="mono">—</td><td class="muted">colour change confounded by water</td><td class="bad">Cannot assess</td></tr>
+</tbody></table></div>
+<section class="rec" aria-label="Recommendation"><b>Recommended next step</b>
+<p style="margin:2px 0 0;font-size:14px">Request the raw overlapping images and camera calibration for both surveys, then re-run steps 3–6 so change can be measured above the noise floor.</p></section>
+<div class="mono muted" style="font-size:12.5px">Generated by CoralLapse prototype · numbers restated from the measurement table only</div>
+</article>
+<button class="btn ghost" type="button" data-go="0">Start a new project</button>
+</section>
+
+</main>
+</div>
+<footer class="site">Prototype interface. Results shown are from the CoralLapse preliminary study; the change map on step 5 is a simulated example. <a href="../">Back to project page</a></footer>
+<script src="app.js"></script>
+</body>
+</html>
